@@ -9,6 +9,22 @@ function GameBoard() {
   const [isShuffling, setIsShuffling] = useState(true);
   const [resetCount, setResetCount] = useState(0);
 
+  // Extend the colors array to include enough colors for all pairs
+  const colors = [
+    "red", "green", "blue", "yellow", "orange", "purple", 
+    "cyan", "magenta", "lime", "pink", "teal", "maroon", 
+    "olive", "navy", "gray", "silver", "gold", "beige", 
+    "brown", "coral", "turquoise", "violet", "indigo", 
+    "mint", "peach", "lavender", "charcoal", "amber", 
+    "emerald", "plum"
+  ];
+  
+
+  const cardColors = {};
+  colors.forEach((color, index) => {
+    cardColors[index] = color;
+  });
+
   // Fisher-Yates Shuffle Algorithm
   const shuffleCards = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -80,13 +96,14 @@ function GameBoard() {
       <div className="game-board">
         {cards.map((card, idx) => (
           <div 
-            key={`${resetCount}-${idx}`} // Change the key to force re-render
+            key={`${resetCount}-${idx}`}
             style={{ '--card-index': idx }}
             className="card-container"
           >
             <Card 
               id={idx}
               value={card}
+              color={matchedCards.includes(idx) ? cardColors[cards[idx]] : null} // Apply the color if the card is matched
               isFlipped={flippedCards.includes(idx) || matchedCards.includes(idx)}
               onCardClick={() => handleCardClick(idx)}
             />
@@ -94,7 +111,7 @@ function GameBoard() {
         ))}
       </div>
     </div>
-  );  
+  );
 }
 
 export default GameBoard;
