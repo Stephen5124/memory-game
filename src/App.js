@@ -1,11 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import GameBoard from './components/GameBoard'; // Import the GameBoard component
+import Settings from './components/Settings'; // Assuming you have a Settings component
+import Leaderboard from './components/Leaderboard'; // Assuming you have a Leaderboard component
 import './App.css';
-
-// Placeholder components
-const GameBoard = () => <h2>Game Board</h2>;
-const Settings = () => <h2>Settings</h2>;
-const Leaderboard = () => <h2>Leaderboard</h2>;
 
 function App() {
   return (

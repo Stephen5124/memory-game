@@ -1,0 +1,9 @@
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr); // Creates 12 columns
+    grid-gap: 10px; // Adjust the gap between cards
+    padding: 20px; // Add some padding around the grid
+    max-width: 1200px; // Set a max-width for the grid
+    margin: auto; // Center the grid horizontally
+  }
+  
