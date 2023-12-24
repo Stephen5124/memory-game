@@ -4,10 +4,53 @@ import { useGameState } from '../context/GameStateContext';
 import Card from './Card';
 import '../styles/GameBoard.scss';
 
+function Popup({ onSave, onCancel }) {
+  const [initials, setInitials] = useState(["", "", ""]);
+
+  const handleInputChange = (index, value) => {
+    const newInitials = [...initials];
+    newInitials[index] = value.toUpperCase();
+    setInitials(newInitials);
+  };
+
+  const handleSave = () => {
+    if (initials.every(char => char.length === 1)) {
+      onSave(initials.join(""));
+    } else {
+      alert("Please enter three letters.");
+    }
+  };
+
+  return (
+    <div className="popup">
+      <div className="popup-inner">
+        <h3>Enter name:</h3>
+        <div className="initials-inputs">
+          {initials.map((char, index) => (
+            <input 
+              key={index}
+              type="text" 
+              value={char} 
+              onChange={e => handleInputChange(index, e.target.value)} 
+              maxLength="1"
+              className="initial-input"
+            />
+          ))}
+        </div>
+        <button onClick={handleSave}>Save</button>
+        <button onClick={onCancel}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
 function GameBoard() {
   const { gameState, setGameState } = useGameState();
   const { cards, flippedCards, matchedCards, isGameWon, attempts } = gameState;
   const navigate = useNavigate();
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const sortedLeaderboard = [...leaderboard].sort((a, b) => a.attempts - b.attempts).slice(0, 10);
 
   const [shuffleKey, setShuffleKey] = useState(0); // State to force re-render on shuffle
   const [isShuffling, setIsShuffling] = useState(false); // State to track shuffling status
@@ -46,7 +89,7 @@ function GameBoard() {
   }, []);
 
   const resetGame = useCallback(() => {
-    setIsShuffling(true); // Enable shuffling state
+    setIsShuffling(true);
     const shuffledCards = shuffleCards([...Array(15).keys()].flatMap(i => [i, i]));
     setGameState({
       cards: shuffledCards,
@@ -56,17 +99,17 @@ function GameBoard() {
       attempts: 0
     });
 
-    setShuffleKey(prevKey => prevKey + 1); // Increment key to trigger re-render
-    setTimeout(() => setIsShuffling(false), 1000); // Disable shuffling state after animation
+    setShuffleKey(prevKey => prevKey + 1);
+    setTimeout(() => setIsShuffling(false), 1000);
   }, [setGameState, shuffleCards]);
 
   useEffect(() => {
     resetGame();
-  }, [resetGame]);
+  }, [resetGame, setGameState]);
 
   const handleCardClick = (cardId) => {
     if (isShuffling || flippedCards.length === 2 || flippedCards.includes(cardId) || matchedCards.includes(cardId)) {
-      return; // Ignore clicks if shuffling or if other conditions are met
+      return;
     }
 
     if (flippedCards.length === 0) {
@@ -107,18 +150,36 @@ function GameBoard() {
   };
 
   useEffect(() => {
-    if (flippedCards.length === 2 && !matchedCards.includes(flippedCards[0]) && !matchedCards.includes(flippedCards[1])) {
-      setTimeout(() => {
-        setGameState(prevState => ({
-          ...prevState,
-          flippedCards: []
-        }));
-      }, 1000);
+    if (isGameWon) {
+      setShowPopup(true);
     }
-  }, [flippedCards, matchedCards, setGameState]);
+  }, [isGameWon]);
+
+  const handlePopupSave = (initials) => {
+    const newEntry = { initials, attempts: attempts, date: new Date().toLocaleString() };
+    const updatedLeaderboard = [...leaderboard, newEntry];
+    setLeaderboard(updatedLeaderboard);
+    localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard));
+    setShowPopup(false);
+  };
+
+  const handlePopupCancel = () => {
+    setShowPopup(false);
+  };
+
+  useEffect(() => {
+    const savedLeaderboard = localStorage.getItem('leaderboard');
+    if (savedLeaderboard) {
+      setLeaderboard(JSON.parse(savedLeaderboard));
+    }
+    resetGame();
+  }, [resetGame]);  
 
   return (
     <div className="game-container">
+       {showPopup && (
+        <Popup onSave={handlePopupSave} onCancel={handlePopupCancel} />
+      )}
       <div className="sidebar">
         <button className="reset-button" onClick={resetGame}>
           Reset Game
@@ -126,7 +187,17 @@ function GameBoard() {
         <button className="settings-button" onClick={goToSettings}>
           Settings
         </button>
-        <p>Attempts: {attempts}</p>
+        <div className="attempts-counter">
+          <p>Attempts: {attempts}</p>
+        </div>
+        <div className="leaderboard">
+          <h3>Leaderboard</h3>
+          <ol>
+            {sortedLeaderboard.map((entry, index) => (
+              <li key={index}>{`${index + 1}. ${entry.initials}: ${entry.attempts} attempts, ${entry.date}`}</li>
+            ))}
+          </ol>
+        </div>
       </div>
       <div className="cards-container">
         <div key={shuffleKey} className={`game-board ${isGameWon ? 'win-animation' : ''}`}>
