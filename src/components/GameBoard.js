@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useGameState } from '../context/GameStateContext';
 import Card from './Card';
 import '../styles/GameBoard.scss';
 
 function GameBoard() {
-  const [cards, setCards] = useState([]);
-  const [flippedCards, setFlippedCards] = useState([]);
-  const [matchedCards, setMatchedCards] = useState([]);
-  const [isShuffling, setIsShuffling] = useState(true);
-  const [resetCount, setResetCount] = useState(0);
-  const [attempts, setAttempts] = useState(0); 
-  const [isGameWon, setIsGameWon] = useState(false);
+  const { gameState, setGameState } = useGameState();
+  const { cards, flippedCards, matchedCards, isGameWon, attempts } = gameState;
+  const navigate = useNavigate();
+
+  const [shuffleKey, setShuffleKey] = useState(0); // State to force re-render on shuffle
+  const [isShuffling, setIsShuffling] = useState(false); // State to track shuffling status
 
   const colors = [
     "red", "green", "blue", "yellow", "orange", "purple", 
@@ -25,7 +26,11 @@ function GameBoard() {
     cardColors[index] = color;
   });
 
-  const shuffleCards = (array) => {
+  const goToSettings = () => {
+    navigate('/settings');
+  };
+
+  const shuffleCards = useCallback((array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
 
     while (currentIndex !== 0) {
@@ -38,22 +43,22 @@ function GameBoard() {
     }
 
     return array;
-  };
+  }, []);
 
   const resetGame = useCallback(() => {
-    setIsShuffling(true);
-    setFlippedCards([]);
-    setMatchedCards([]);
-    setIsGameWon(false); // Also reset the win state
-    setAttempts(0); // Reset attempts
-    setCards(shuffleCards([...Array(15).keys()].flatMap(i => [i, i])));
+    setIsShuffling(true); // Enable shuffling state
+    const shuffledCards = shuffleCards([...Array(15).keys()].flatMap(i => [i, i]));
+    setGameState({
+      cards: shuffledCards,
+      flippedCards: [],
+      matchedCards: [],
+      isGameWon: false,
+      attempts: 0
+    });
 
-    const shuffleDuration = 60 * 50;
-    setTimeout(() => {
-      setIsShuffling(false);
-    }, shuffleDuration);
-    setResetCount(count => count + 1);
-  }, []);
+    setShuffleKey(prevKey => prevKey + 1); // Increment key to trigger re-render
+    setTimeout(() => setIsShuffling(false), 1000); // Disable shuffling state after animation
+  }, [setGameState, shuffleCards]);
 
   useEffect(() => {
     resetGame();
@@ -61,28 +66,42 @@ function GameBoard() {
 
   const handleCardClick = (cardId) => {
     if (isShuffling || flippedCards.length === 2 || flippedCards.includes(cardId) || matchedCards.includes(cardId)) {
-      return;
+      return; // Ignore clicks if shuffling or if other conditions are met
     }
 
     if (flippedCards.length === 0) {
-      setAttempts(prevAttempts => prevAttempts + 1); // Increment attempts for each new pair attempt
+      setGameState(prevState => ({
+        ...prevState,
+        attempts: prevState.attempts + 1
+      }));
     }
 
     const newFlippedCards = [...flippedCards, cardId];
-    setFlippedCards(newFlippedCards);
+    setGameState(prevState => ({
+      ...prevState,
+      flippedCards: newFlippedCards
+    }));
 
     if (newFlippedCards.length === 2) {
       const match = cards[newFlippedCards[0]] === cards[newFlippedCards[1]];
       if (match) {
         const newMatchedCards = [...matchedCards, ...newFlippedCards];
-        setMatchedCards(newMatchedCards);
-        // Use newMatchedCards.length here, since setMatchedCards is async
+        setGameState(prevState => ({
+          ...prevState,
+          matchedCards: newMatchedCards
+        }));
         if (newMatchedCards.length === cards.length) {
-          setIsGameWon(true); // Update the state to reflect the win
+          setGameState(prevState => ({
+            ...prevState,
+            isGameWon: true
+          }));
         }
       }
       setTimeout(() => {
-        setFlippedCards([]);
+        setGameState(prevState => ({
+          ...prevState,
+          flippedCards: []
+        }));
       }, 1000);
     }
   };
@@ -90,35 +109,46 @@ function GameBoard() {
   useEffect(() => {
     if (flippedCards.length === 2 && !matchedCards.includes(flippedCards[0]) && !matchedCards.includes(flippedCards[1])) {
       setTimeout(() => {
-        setFlippedCards([]);
+        setGameState(prevState => ({
+          ...prevState,
+          flippedCards: []
+        }));
       }, 1000);
     }
-  }, [flippedCards, matchedCards, cards]);
+  }, [flippedCards, matchedCards, setGameState]);
 
   return (
-    <div>
-      <button onClick={resetGame} disabled={isShuffling}>Reset Game</button>
-      <p>Attempts: {attempts}</p>
-      {/* Add the conditional class name based on the isGameWon state */}
-      <div className={`game-board ${isGameWon ? 'win-animation' : ''}`}> 
-        {cards.map((card, idx) => (
-          <div 
-            key={`${resetCount}-${idx}`}
-            style={{ '--card-index': idx }}
-            className={`card-container ${isGameWon ? 'win-animation' : ''}`} // Apply win animation to each card if needed
-          >
-            <Card 
-              id={idx}
-              value={card}
-              color={matchedCards.includes(idx) ? cardColors[cards[idx]] : null}
-              isFlipped={flippedCards.includes(idx) || matchedCards.includes(idx)}
-              onCardClick={() => handleCardClick(idx)}
-            />
-          </div>
-        ))}
+    <div className="game-container">
+      <div className="sidebar">
+        <button className="reset-button" onClick={resetGame}>
+          Reset Game
+        </button>
+        <button className="settings-button" onClick={goToSettings}>
+          Settings
+        </button>
+        <p>Attempts: {attempts}</p>
+      </div>
+      <div className="cards-container">
+        <div key={shuffleKey} className={`game-board ${isGameWon ? 'win-animation' : ''}`}>
+          {cards.map((card, idx) => (
+            <div 
+              key={`${idx}`}
+              style={{ '--card-index': idx }}
+              className="card-container"
+            >
+              <Card 
+                id={idx}
+                value={card}
+                color={matchedCards.includes(idx) ? cardColors[cards[idx]] : null}
+                isFlipped={flippedCards.includes(idx) || matchedCards.includes(idx)}
+                onCardClick={() => handleCardClick(idx)}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
-  );  
+  );
 }
 
 export default GameBoard;

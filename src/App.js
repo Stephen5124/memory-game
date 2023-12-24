@@ -1,20 +1,24 @@
+// App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import GameBoard from './components/GameBoard'; // Import the GameBoard component
-import Settings from './components/Settings'; // Assuming you have a Settings component
-import Leaderboard from './components/Leaderboard'; // Assuming you have a Leaderboard component
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { GameStateProvider } from './context/GameStateContext';
+import GameBoard from './components/GameBoard';
+import Settings from './components/Settings';
+import Leaderboard from './components/Leaderboard';
 import './App.css';
 
 function App() {
   return (
     <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<GameBoard />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-        </Routes>
-      </div>
+      <GameStateProvider>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<GameBoard />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+          </Routes>
+        </div>
+      </GameStateProvider>
     </Router>
   );
 }

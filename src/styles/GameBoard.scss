@@ -1,17 +1,36 @@
+.game-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1200px; // Adjust as needed
+  margin: auto;
+  padding: 20px;
+}
+
+.sidebar {
+  width: 30%;
+  // Styles for your sidebar (reset button, leaderboard, settings button)
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cards-container {
+  width: 70%;
+  // This container will hold the game board
+}
+
 .game-board {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr)); // 6 columns for all sizes
-  grid-gap: 10px; // Gap between cards
-  padding: 20px; // Padding around the grid
-  margin: auto; // Center the grid horizontally
-  max-width: calc(100vw - 40px); // Set a max-width based on the viewport width
-  box-sizing: border-box; // Include padding in the width calculation
+  grid-template-columns: repeat(6, minmax(0, 1fr)); // 6 columns
+  grid-gap: 10px;
+  padding: 20px; // Adjust as needed
+  // The margin and max-width are moved to the game-container
 }
 
 .card-container {
   animation: appear 0.5s ease-in-out;
-  animation-delay: calc(var(--card-index) * 50ms); // Delay based on card index
-  // Define any specific card styles here, such as width, height, etc.
+  animation-delay: calc(var(--card-index) * 50ms);
 }
 
 @keyframes appear {
@@ -25,17 +44,22 @@
   }
 }
 
-// Media query for tablets
 @media (max-width: 768px) {
   .game-board {
-    grid-template-columns: repeat(4, minmax(0, 1fr)); // Adjust to 4 columns on smaller screens
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .game-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .sidebar, .cards-container {
+    width: 100%;
   }
 }
 
-// Media query for mobile
 @media (max-width: 480px) {
   .game-board {
-    grid-template-columns: repeat(3, minmax(0, 1fr)); // Adjust to 3 columns on mobile screens
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -53,4 +77,55 @@
 .win-animation {
   animation: winAnimation 2s ease-in-out 5;
   box-shadow: 0 0 15px rgba(0, 255, 0, 0.7); 
+}
+
+.reset-button {
+  padding: 10px 20px;
+  background-color: #007bff; // Example blue color
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+
+  &:hover {
+    background-color: #0056b3; // Darker blue on hover
+  }
+
+  &:disabled {
+    background-color: #cccccc; // Greyed out when disabled
+    cursor: default;
+  }
+}
+
+.settings-button {
+  padding: 10px 20px;
+  background-color: #28a745; // Different color for distinction
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #218838; // Darker green on hover
+  }
+}
+
+.back-button {
+  padding: 10px 20px;
+  background-color: #6c757d; // Example grey color
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #5a6268; // Darker grey on hover
+  }
 }
