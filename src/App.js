@@ -6,6 +6,8 @@ import GameBoard from './components/GameBoard';
 import Settings from './components/Settings';
 import Leaderboard from './components/Leaderboard';
 import './App.css';
+import './styles/App.scss';
+
 
 function App() {
   return (

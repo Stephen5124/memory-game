@@ -182,7 +182,7 @@ function GameBoard() {
       )}
       <div className="sidebar">
         <button className="reset-button" onClick={resetGame}>
-          Reset Game
+          Restart Game
         </button>
         <button className="settings-button" onClick={goToSettings}>
           Settings

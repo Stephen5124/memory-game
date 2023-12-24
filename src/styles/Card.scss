@@ -1,44 +1,69 @@
 .card-container {
-    width: 100px;
-    height: 150px;
-    perspective: 1000px;
-    cursor: pointer;
-  }
-  
-  .card {
-    width: 100%;
-    height: 100%;
+  width: 100px;
+  height: 150px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s;
+}
+
+.card-front,
+.card-back {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  color: #000;
+  background-color: #fff;
+  transition: transform 1.0s; /* Add transition to both card-front and card-back */
+}
+
+.card-back {
+  background-color: #007bff;
+  transform: rotateY(0deg); /* Change this to 0deg for the initial state */
+
+  /* Pixel Artwork */
+  .space-invader {
+    width: 60px;
+    height: 40px;
     position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.5s;
-  }
-  
-  .card-front,
-  .card-back {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    backface-visibility: hidden;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 20px;
-    background-color: #fff;
-    transition: transform 1.0s; /* Add transition to both card-front and card-back */
   }
-  
-  .card-back {
-    background-color: #007bff;
-    transform: rotateY(0deg); /* Change this to 0deg for the initial state */
+
+  /* Creating individual pixels */
+  .pixel {
+    width: 10px;
+    height: 10px;
+    background-color: #000;
+    position: absolute;
   }
-  
-  .card-container.flipped .card-back {
-    transform: rotateY(180deg); /* Flip the back to front when .flipped is applied */
-  }
-  
-  .card-container.flipped .card-front {
-    transform: rotateY(0deg); /* Flip the front to back when .flipped is applied */
-  }
-  
+
+  /* Positioning pixels to form the Space Invader */
+  .pixel:nth-child(1) { top: 10px; left: 20px; }
+  .pixel:nth-child(2) { top: 10px; left: 30px; }
+  .pixel:nth-child(3) { top: 20px; left: 10px; }
+  .pixel:nth-child(4) { top: 20px; left: 40px; }
+  // ... More pixel positioning ...
+}
+
+.card-container.flipped .card-back {
+  transform: rotateY(180deg); /* Flip the back to front when .flipped is applied */
+}
+
+.card-container.flipped .card-front {
+  transform: rotateY(0deg); /* Flip the front to back when .flipped is applied */
+}
