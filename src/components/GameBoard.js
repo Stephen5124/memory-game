@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { useGameState } from '../context/GameStateContext';
 import Card from './Card';
 import '../styles/GameBoard.scss';
@@ -47,7 +47,7 @@ function Popup({ onSave, onCancel }) {
 function GameBoard() {
   const { gameState, setGameState } = useGameState();
   const { cards, flippedCards, matchedCards, isGameWon, attempts } = gameState;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [leaderboard, setLeaderboard] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const sortedLeaderboard = [...leaderboard].sort((a, b) => a.attempts - b.attempts).slice(0, 10);
@@ -69,9 +69,9 @@ function GameBoard() {
     cardColors[index] = color;
   });
 
-  const goToSettings = () => {
-    navigate('/settings');
-  };
+  // const goToSettings = () => {
+  //   navigate('/settings');
+  // };
 
   const shuffleCards = useCallback((array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -184,9 +184,9 @@ function GameBoard() {
         <button className="reset-button" onClick={resetGame}>
           Restart Game
         </button>
-        <button className="settings-button" onClick={goToSettings}>
+        {/* <button className="settings-button" onClick={goToSettings}>
           Settings
-        </button>
+        </button> */}
         <div className="attempts-counter">
           <p>Attempts: {attempts}</p>
         </div>
